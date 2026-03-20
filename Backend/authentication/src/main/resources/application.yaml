@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: authentication
+
+  profiles:
+    active: dev
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+        format_sql: true
+
+server:
+  port: 8081
+
+app:
+  mail:
+    enabled: true
+  security:
+    max-failed-attempts: 5
+    lock-duration-minutes: 15
+  token:
+    expiry-minutes: 5
