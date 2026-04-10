@@ -117,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
         // JWT will be generated here later
         return AuthResponse.builder()
                 .accessToken("jwt-pending")
-                .tokenType("Bearer")
+                .tokenType(TokenType.BEARER.toString())
                 .user(userMapper.toResponse(user))
                 .build();
 
