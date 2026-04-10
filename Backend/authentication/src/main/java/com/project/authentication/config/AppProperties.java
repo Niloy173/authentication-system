@@ -34,5 +34,6 @@ public class AppProperties {
     @Setter
     public static class Token {
         private int expiryMinutes;
+        private int maxAttempts;
     }
 }

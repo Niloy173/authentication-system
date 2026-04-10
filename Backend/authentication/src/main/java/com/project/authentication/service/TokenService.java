@@ -9,4 +9,8 @@ public interface TokenService {
     AuthToken createToken(User user, TokenType tokenType);
 
     AuthToken validateToken(String token, TokenType tokenType);
+
+    void burnToken(AuthToken authToken);
+
+    void incrementAttempts(AuthToken authToken);
 }

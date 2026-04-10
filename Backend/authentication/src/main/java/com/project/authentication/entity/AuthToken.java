@@ -36,6 +36,9 @@ public class AuthToken {
     @Column(name = "USED", length = 1)
     private Character used = 'N';
 
+    @Column(name = "ATTEMPTS")
+    private Integer attempts;
+
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 
