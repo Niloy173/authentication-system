@@ -26,3 +26,9 @@ app:
     lock-duration-minutes: 15
   token:
     expiry-minutes: 5
+    max-attempts: 3
+
+
+logging:
+  pattern:
+    console: ${LOG_PATTERN_CONSOLE:%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n}
