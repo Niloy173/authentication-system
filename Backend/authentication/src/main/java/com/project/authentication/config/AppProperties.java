@@ -15,6 +15,7 @@ public class AppProperties {
     private Mail mail = new Mail();
     private Security security = new Security();
     private Token token = new Token();
+    private Frontend frontend = new Frontend();
 
 
     @Getter
@@ -35,5 +36,11 @@ public class AppProperties {
     public static class Token {
         private int expiryMinutes;
         private int maxAttempts;
+    }
+
+    @Getter
+    @Setter
+    public static class Frontend {
+        private String baseUrl;
     }
 }
