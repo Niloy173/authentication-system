@@ -7,6 +7,7 @@ import com.project.authentication.dto.request.ResetPasswordRequest;
 import com.project.authentication.entity.AuthToken;
 import com.project.authentication.entity.User;
 import com.project.authentication.exception.AppException;
+import com.project.authentication.mail.MailService;
 import com.project.authentication.repository.UserRepository;
 import com.project.authentication.service.PasswordService;
 import com.project.authentication.service.TokenService;
@@ -26,6 +27,7 @@ public class PasswordServiceImpl implements PasswordService {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final PasswordUtil passwordUtil;
+    private final MailService mailService;
 
     @Override
     public void forgotPassword(ForgotPasswordRequest request) {
@@ -35,7 +37,8 @@ public class PasswordServiceImpl implements PasswordService {
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
             AuthToken token = tokenService.createToken(user, TokenType.RESET_PASSWORD);
             log.info("Password reset token for {}: {}", user.getEmail(), token.getToken());
-            // mail will be triggered here later
+
+            mailService.sendResetPasswordEmail(user, token);
         });
 
 

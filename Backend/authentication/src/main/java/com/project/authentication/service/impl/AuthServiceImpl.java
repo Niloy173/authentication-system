@@ -9,6 +9,7 @@ import com.project.authentication.dto.request.RegisterRequest;
 import com.project.authentication.dto.response.AuthResponse;
 import com.project.authentication.entity.*;
 import com.project.authentication.exception.AppException;
+import com.project.authentication.mail.MailService;
 import com.project.authentication.mapper.UserMapper;
 import com.project.authentication.repository.LoginAttemptRepository;
 import com.project.authentication.repository.RoleRepository;
@@ -38,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordUtil passwordUtil;
     private final UserMapper userMapper;
     private final AppProperties appProperties;
+    private final MailService mailService;
 
     private static final int LAST_LOGIN_THRESHOLD_DAYS = 7;
 
@@ -79,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
         var token = tokenService.createToken(user, TokenType.VERIFY_EMAIL);
         log.info("Email verification token for {}: {}", user.getEmail(), token.getToken());
 
-        // mail will be triggered here later
+        mailService.sendVerificationEmail(user, token);
 
     }
 
@@ -115,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
             AuthToken otpToken = tokenService.createToken(user, TokenType.OTP);
             log.info("7-day OTP triggered for user: {}", user.getEmail());
 
-            // mail will be triggered here later
+            mailService.sendLoginOtpEmail(user, otpToken);
 
             return AuthResponse.builder()
                     .accessToken(null)
