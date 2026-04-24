@@ -39,6 +39,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final AppProperties appProperties;
 
+    private static final int LAST_LOGIN_THRESHOLD_DAYS = 7;
+
 
     @Override
     @Transactional
@@ -108,8 +110,24 @@ public class AuthServiceImpl implements AuthService {
             throw new AppException("Invalid credentials", HttpStatus.UNAUTHORIZED);
         }
 
+        // Password valid — check if 7-day OTP verification is required
+        if (requiresOtpVerification(user)) {
+            AuthToken otpToken = tokenService.createToken(user, TokenType.OTP);
+            log.info("7-day OTP triggered for user: {}", user.getEmail());
+
+            // mail will be triggered here later
+
+            return AuthResponse.builder()
+                    .accessToken(null)
+                    .tokenType(TokenType.PENDING.toString())
+                    .user(null)
+                    .build();
+        }
+
+        // Normal login — update lastLoginAt and return
         user.setFailedAttempts(0);
         user.setLockedUntil(null);
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
         recordAttempt(user, 'Y', ipAddress);
@@ -134,6 +152,35 @@ public class AuthServiceImpl implements AuthService {
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse verifyLoginOtp(String otp) {
+
+        AuthToken authToken = tokenService.validateOtp(otp);
+
+        tokenService.burnToken(authToken);
+
+        User user = authToken.getUser();
+        user.setFailedAttempts(0);
+        user.setLockedUntil(null);
+        user.setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        recordAttempt(user, 'Y', "otp-verified");
+
+        // JWT will be generated here later
+        return AuthResponse.builder()
+                .accessToken("jwt-pending")
+                .tokenType("Bearer")
+                .user(userMapper.toResponse(user))
+                .build();
+    }
+
+    private boolean requiresOtpVerification(User user) {
+        return user.getLastLoginAt() == null ||
+                user.getLastLoginAt().isBefore(LocalDateTime.now().minusDays(LAST_LOGIN_THRESHOLD_DAYS));
     }
 
 

@@ -38,6 +38,9 @@ public class User {
     @Column(name = "FAILED_ATTEMPTS")
     private Integer failedAttempts = 0;
 
+    @Column(name = "LAST_LOGIN_AT")
+    private LocalDateTime lastLoginAt;
+
     @Column(name = "LOCKED_UNTIL")
     private LocalDateTime lockedUntil;
 

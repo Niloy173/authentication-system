@@ -11,4 +11,6 @@ public interface AuthService {
     AuthResponse login(LoginRequest request, String ipAddress);
 
     void verifyEmail(String token);
+
+    AuthResponse verifyLoginOtp(String otp);
 }
