@@ -67,14 +67,42 @@ public class TokenServiceImpl implements TokenService {
             throw new AppException("Token has expired", HttpStatus.BAD_REQUEST);
         }
 
-        // OTP-only: check attempt count before accepting
-        if (tokenType == TokenType.OTP) {
-            if (authToken.getAttempts() >= appProperties.getToken().getMaxAttempts()) {
-                throw new AppException("Too many attempts. Please request a new OTP", HttpStatus.TOO_MANY_REQUESTS);
-            }
-        }
+//        // OTP-only: check attempt count before accepting
+//        if (tokenType == TokenType.OTP) {
+//            if (authToken.getAttempts() >= appProperties.getToken().getMaxAttempts()) {
+//                throw new AppException("Too many attempts. Please request a new OTP", HttpStatus.TOO_MANY_REQUESTS);
+//            }
+//        }
 
         return authToken;
+    }
+
+    @Override
+    @Transactional
+    public AuthToken validateOtp(String otp) {
+
+        AuthToken authToken = authTokenRepository
+                .findByTokenAndTokenType(otp, TokenType.OTP)
+                .orElseThrow(() -> new AppException("Invalid OTP", HttpStatus.BAD_REQUEST));
+
+        if (authToken.getUsed() == 'Y') {
+            throw new AppException("OTP is no longer valid. Please request a new one", HttpStatus.BAD_REQUEST);
+        }
+
+        if (authToken.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new AppException("OTP has expired. Please request a new one", HttpStatus.BAD_REQUEST);
+        }
+
+        if (authToken.getAttempts() >= appProperties.getToken().getMaxAttempts()) {
+            throw new AppException("Too many attempts. Please login and try again", HttpStatus.TOO_MANY_REQUESTS);
+        }
+
+        // TODO (Security Phase): wrong OTP value = no record found = can't increment attempts.
+        // Fix: find by user + TokenType.OTP first (from pending token in security context),
+        // compare value manually, then increment on mismatch before throwing.
+
+        return authToken;
+
     }
 
     @Override

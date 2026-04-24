@@ -8,5 +8,10 @@ public enum TokenType {
     // Action-oriented tokens (one-time use)
     OTP,
     RESET_PASSWORD,
-    VERIFY_EMAIL
+    VERIFY_EMAIL,
+
+    // State tokens
+    PENDING,
+    DISABLED,
+    LOCKED
 }

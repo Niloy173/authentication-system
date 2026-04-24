@@ -2,6 +2,7 @@ package com.project.authentication.repository;
 
 import com.project.authentication.constant.TokenType;
 import com.project.authentication.entity.AuthToken;
+import com.project.authentication.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +17,7 @@ public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
     @Modifying
     @Query("UPDATE AuthToken t SET t.used = 'Y' WHERE t.user.userId = :userId AND t.tokenType = :tokenType AND t.used = 'N'")
     void invalidatePreviousTokens(Long userId, TokenType tokenType);
+
+    Optional<AuthToken> findByUserAndTokenTypeAndUsed(User user, TokenType tokenType, char used);
 
 }
